@@ -1,0 +1,29 @@
+# Hassas dosyalar
+.env
+.env.local
+*.env
+
+# Bağımlılıklar
+node_modules/
+
+# IDE dosyaları
+.vscode/
+.idea/
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+
+# Loglar ve build çıktıları
+logs/
+*.log
+dist/
+build/
+
+# Test verileri
+coverage/
+
+# Backend (Node.js)
+/server/.env
+/server/node_modules/
+/server/uploads/  # Yüklenen dosyalar
