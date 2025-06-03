@@ -1,6 +1,6 @@
 const Product = require("../models/product.js");
 const ProductQuery = require("../utils/productQuery.js");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require('../config/cloudinary.js')
 
 const allProducts = async (req, res) => {
     const resultPerPage = 10;
