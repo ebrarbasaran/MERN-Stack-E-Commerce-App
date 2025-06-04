@@ -2,7 +2,7 @@ const { search } = require("../routes/product");
 
 class ProductQuery {
     constructor(query, queryStr) {
-        this.query = query; //mongodb sorgusu or: product.find()
+        this.query = query; //mongodb sorgusu or: Product.find()
         this.queryStr = queryStr; //url uzerinden gelen parametrelerdir backend'de req.query olarak alınır
     }
 

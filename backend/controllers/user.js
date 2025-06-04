@@ -83,19 +83,61 @@ const register = async (req, res) => {
 }
 
 const login = async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-}
+    if (!user) {
+        return res.status(400).json({ message: "Boyle bir kullanici bulunamadi!" });
+    }
 
-const logout = async (req, res) => {
+    const comparePassword = await bcrypt.compare(password, user.password);
+    if (!comparePassword) {
+        return res.status(500).json({ message: "Yanlis sifre girdiniz!" })
+    }
 
-}
+    try {
+        //jwt token olustur
+        const token = jwt.sign({
+            userId: user._id,
+            email: user.email
+        },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } //token suresi 1 saat
+        );
 
-const forgetPassword = async (req, res) => {
+        //token; http-only cookie ekle
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 3600000
+        });
 
-}
+        return res.status(200).json({
+            message: "Basariyla giris yapildi",
+            user,
+            token: token
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Giris yaparken bir hata olustu",
+            error: error.message
+        })
+    }
 
-const resetPassword = async (req, res) => {
+    const logout = async (req, res) => {
+        const cookieOptions = {
+            httpOnly: true,
+            expires: new Date(Date.now())
+        }
+        res.status(200).cookie("token", null, cookieOptions).json({ message: "Cikis islemi basarili" })
+    }
 
-}
+    const forgetPassword = async (req, res) => {
 
-module.exports = { register, login, logout, forgetPassword, resetPassword }
+    }
+
+    const resetPassword = async (req, res) => {
+
+    }
+
+    module.exports = { register, login, logout, forgetPassword, resetPassword }
