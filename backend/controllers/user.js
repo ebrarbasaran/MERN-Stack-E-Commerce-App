@@ -1,7 +1,7 @@
-const User = require('../model/user.js');
+const User = require('../models/user.js');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const jwt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -23,7 +23,7 @@ const register = async (req, res) => {
     //sifre validasyonu
     if (!validator.isStrongPassword(password, {
         minLength: 6,
-        minLowercase1,
+        minLowercase: 1,
         minUppercase: 1,
         minSymbols: 1,
         returnScore: false //puan dondurme
@@ -123,14 +123,16 @@ const login = async (req, res) => {
             error: error.message
         })
     }
+}
 
     const logout = async (req, res) => {
         const cookieOptions = {
             httpOnly: true,
             expires: new Date(Date.now())
         }
-        res.status(200).cookie("token", null, cookieOptions).json({ message: "Cikis islemi basarili" })
+        return res.status(200).cookie("token", null, cookieOptions).json({ message: "Cikis islemi basarili" })
     }
+
 
     const forgetPassword = async (req, res) => {
 
