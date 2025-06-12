@@ -47,9 +47,9 @@ const authenticationMid = async (req, res, next) => {
  amac tek bir isAdmin yerine dinamik olarak hangi rollerin erisimi oldugunu belirlemek
  */
 
- const authorizeRoles = (...roles) => {
-    return (req,res,next) =>{
-        if(!req.user || !roles.includes(req.user.role)){
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
             return res.status(403).json({
                 success: false,
                 message: "Bu islem icin admin yetkisi gerekli!"
@@ -57,6 +57,6 @@ const authenticationMid = async (req, res, next) => {
         }
         next();
     }
- }
+}
 
-module.exports = { authenticationMid,authorizeRoles}
+module.exports = { authenticationMid, authorizeRoles }

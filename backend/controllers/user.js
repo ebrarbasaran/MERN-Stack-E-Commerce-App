@@ -1,10 +1,20 @@
-const User = require('../models/user.js');
-const validator = require('validator');
+validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const cloudinary = require('cloudinary').v2;
+const sendEmail = require('../utils/sendEmail.js');
 
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
+
+    const avatar = await cloudinary.uploader.upload(req.body.avatar, {
+        folder: "avatars",
+        width: 130,
+        crop: "scale"
+    })
+
+
+    const { name, email, password, role } = req.body;
 
     //kullanci var mi kontrolu
     const existingUser = await User.findOne({ email });
@@ -47,7 +57,12 @@ const register = async (req, res) => {
         const newUser = await User.create({
             name,
             email,
-            password: passwordHash
+            password: passwordHash,
+            avatar: {
+                public_id: avatar.public_id,
+                url: avatar.secure_url
+            },
+            role
         });
 
         //jwt token olustur
@@ -87,7 +102,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(400).json({ message: "Boyle bir kullanici bulunamadi!" });
+        return res.status(404).json({ message: "Boyle bir kullanici bulunamadi!" });
     }
 
     const comparePassword = await bcrypt.compare(password, user.password);
@@ -125,21 +140,59 @@ const login = async (req, res) => {
     }
 }
 
-    const logout = async (req, res) => {
-        const cookieOptions = {
-            httpOnly: true,
-            expires: new Date(Date.now())
-        }
-        return res.status(200).cookie("token", null, cookieOptions).json({ message: "Cikis islemi basarili" })
+const logout = async (req, res) => {
+    const cookieOptions = {
+        httpOnly: true,
+        expires: new Date(Date.now())
+    }
+    return res.status(200).cookie("token", null, cookieOptions).json({ message: "Cikis islemi basarili" })
+}
+
+
+const forgetPassword = async (req, res) => {
+    //kullanici var mi kontrol et 
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ message: "Boyle bir kullanici bulunamadi" })
     }
 
+    //token olusturmak icin: crypto node.js icinde olan bi module
+    //kullaniciya ozel zaman asimli reset token olusturmamiz gerekir
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    //tokeni hashleyip modele ekledik  
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000); //15 dakida gecerli
+    await user.save({ validateBeforeSave: false }); // sadece token kaydetsin
 
-    const forgetPassword = async (req, res) => {
+    //sifre sifirlama linki
+    const resetUrl = `${req.protocol}://${req.get('host')}/reset/${resetToken}`;
+    const message = `Şifre sıfırlamak için bu linke tıkla:\n\n${resetUrl}\n\nBu bağlantı 15 dakika içinde geçerliliğini yitirecek.`;
 
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: `Sifre Sifirlama Talebi`,
+            message,
+        });
+
+        //gelistirme ortami icin mail yerine sadece linki donduruyoruz
+        res.status(200).json({
+            succes: true,
+            message: `Şifre sıfırlama bağlantısı ${user.email} adresine gönderildi.`,
+        })
+
+    } catch (error) {
+        user.resetPasswordToken = undefined
+        user.resetPasswordExpire = undefined
+        await user.save({ validateBeforeSave: false });
+        return res.status(500).json({message:"Mail gonderilemedi", error: error.message})
     }
 
-    const resetPassword = async (req, res) => {
+}
 
-    }
+const resetPassword = async (req, res) => {
 
-    module.exports = { register, login, logout, forgetPassword, resetPassword }
+}
+
+module.exports = { register, login, logout, forgetPassword, resetPassword }
