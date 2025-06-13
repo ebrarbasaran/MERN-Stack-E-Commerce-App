@@ -162,7 +162,7 @@ const forgetPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(20).toString('hex');
     //tokeni hashleyip modele ekledik  
     user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000); //15 dakida gecerli
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; //15 dakida gecerli
     await user.save({ validateBeforeSave: false }); // sadece token kaydetsin
 
     //sifre sifirlama linki
@@ -176,7 +176,6 @@ const forgetPassword = async (req, res) => {
             message,
         });
 
-        //gelistirme ortami icin mail yerine sadece linki donduruyoruz
         res.status(200).json({
             succes: true,
             message: `Şifre sıfırlama bağlantısı ${user.email} adresine gönderildi.`,
@@ -186,13 +185,45 @@ const forgetPassword = async (req, res) => {
         user.resetPasswordToken = undefined
         user.resetPasswordExpire = undefined
         await user.save({ validateBeforeSave: false });
-        return res.status(500).json({message:"Mail gonderilemedi", error: error.message})
+        return res.status(500).json({ message: "Mail gonderilemedi", error: error.message })
     }
 
 }
 
 const resetPassword = async (req, res) => {
+    try {    //token'i hashleyerek db'de arama yap
+        const hashedToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
 
+        //token'a sahip ve suresi gecmemis kullaniciyi bul 
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpire: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Gecersiz veya suresi gecmis token" });
+        }
+
+        //yeni sifreyi kaydet
+        const newPassword = req.body.password;
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: "Sifre en az 6 karakter olmali." });
+        }
+        user.password = newPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save();
+
+        res.status(200).json({ message: "Sifre basariyla sifirlandi.Lutfen giris yapiniz." })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Sifre sifirlama sirasinda bir hata olustu.",
+            error: error.message,
+        });
+    }
 }
 
 module.exports = { register, login, logout, forgetPassword, resetPassword }
