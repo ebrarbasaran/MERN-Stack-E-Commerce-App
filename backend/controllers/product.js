@@ -90,6 +90,8 @@ const createProduct = async (req, res) => {
 
     //orijinal request'in images alanını güncelle
     req.body.images = allImage;
+    req.body.user = req.user.id; //user kullandigimiz icin req.user.id verdik
+
     const product = await Product.create(req.body);
 
     res.status(201).json({

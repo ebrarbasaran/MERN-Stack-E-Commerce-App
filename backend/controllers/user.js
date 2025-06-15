@@ -1,3 +1,4 @@
+const User = require('../models/user.js');
 validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -226,4 +227,10 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = { register, login, logout, forgetPassword, resetPassword }
+const userDetail = async (req, res) => {
+    const { user } = User.findById(req.params.id);
+    res.status(200).json({
+        user
+    })
+}
+module.exports = { register, login, logout, forgetPassword, resetPassword, userDetail }
