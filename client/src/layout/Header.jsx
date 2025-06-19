@@ -1,13 +1,20 @@
 import { useState } from "react";
 import profileImg from "../assets/user-profile.png";
-import { FiSearch, FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { FiSearch, FiShoppingCart, FiUser, FiMenu, FiX, FiChevronDown } from "react-icons/fi";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const links = [
+    { href: '/profile', label: 'Profile' },
+    { href: '/settings', label: 'Ayarlar' },
+    { href: '/logout', label: 'Çıkış Yap' },
+  ]
+
   return (
-    <header className="bg-gray-100 sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b-3 border-indigo-600">
       {/* Main Header */}
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Left side - Logo and mobile menu button */}
@@ -29,49 +36,79 @@ const Header = () => {
             <input
               type="text"
               placeholder="Ürün ara..."
-              className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full h-[40px] px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <FiSearch className="absolute right-3 top-3 text-gray-400" />
+            <FiSearch className="absolute right-3 top-3 text-gray-700" />
           </div>
         </div>
 
         {/* Right side - mobile icons */}
-        <div className="flex items-center space-x-4">
-          <div className="md:hidden flex items-center space-x-4">
-            <a
-              href="/login"
-              className="text-gray-700 hover:text-indigo-600 transition-colors duration-200"
-            >
-              <FiUser className="text-xl" />
-            </a>
-            <a
-              href="/cart"
-              className="text-gray-700 hover:text-indigo-600 transition-colors duration-200"
-            >
-              <FiShoppingCart className="text-xl" />
-            </a>
-          </div>
 
-          {/* Right side - desktop icons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <a
-              href="/login"
-              className="flex items-center gap-2 px-4 py-1 rounded-xl border border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors duration-200"
-            >
-              <FiUser className="text-lg" />
-              <span>Giriş Yap</span>
-            </a>
-            <a
-              href="/cart"
-              className="flex items-center gap-2 px-4 py-1 rounded-xl border border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors duration-200"
-            >
-              <FiShoppingCart className="text-lg" />
-              <span>Sepetim</span>
-            </a>
-          </div>
+        <div className="md:hidden flex items-center space-x-4">
+          <a
+            href="/login"
+            className="text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+          >
+            <FiUser className="text-xl" />
+          </a>
+          <a
+            href="/cart"
+            className="text-gray-700 hover:text-indigo-600 transition-colors duration-200"
+          >
+            <FiShoppingCart className="text-xl" />
+          </a>
         </div>
+
+        {/* Right side - desktop icons */}
+        <div className="hidden md:flex items-center space-x-4">
+          <Menu>
+            {({ open }) => (
+              <div className="relative inline-block text-left">
+                <MenuButton
+                  className={`flex items-center gap-2 px-4 h-[40px] rounded-xl border transition-colors duration-200
+          ${open ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600"}
+        `}
+                >
+                  <FiUser className="text-lg" />
+                  <div className="flex flex-col items-center leading-tight">
+                    <p>Hesabım</p>
+                    <p className="text-[10px]">User Name</p>
+                  </div>
+                  <FiChevronDown className="text-lg" />
+                </MenuButton>
+
+                <MenuItems
+                  className="absolute left-0 top-full mt-2 right-0 w-(--button-width) bg-white rounded-md shadow-md text-gray-700 border border-gray-200 px-2 py-2 z-50 focus:outline-none"
+                >
+                  {links.map((link) => (
+                    <MenuItem key={link.href}>
+                      {({ active }) => (
+                        <a
+                          href={link.href}
+                          className={`block px-4 py-2 text-sm rounded-md ${active ? "text-indigo-600 font-medium" : "text-gray-700"
+                            }`}
+                        >
+                          {link.label}
+                        </a>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </div>
+            )}
+          </Menu>
+          <button
+            href="/cart"
+            className="flex items-center gap-2 px-4 h-[40px] rounded-xl border border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors duration-200"
+          >
+            <FiShoppingCart className="text-lg" />
+            <p>Sepetim</p>
+          </button>
+        </div>
+
+
       </div>
 
       {/* Mobile Menu */}
