@@ -8,13 +8,13 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const links = [
-    { href: '/profile', label: 'Profile' },
+    { href: '/profile', label: 'Profil' },
     { href: '/settings', label: 'Ayarlar' },
     { href: '/logout', label: 'Çıkış Yap' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 border-b-3 border-indigo-600">
+    <header className="sticky bg-white top-0 z-50 border-b-3 border-indigo-600 ">
       {/* Main Header */}
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Left side - Logo and mobile menu button */}
@@ -40,7 +40,7 @@ const Header = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <FiSearch className="absolute right-3 top-3 text-gray-700" />
+            <FiSearch className="absolute right-3 top-3 text-gray-700 cursor-pointer" />
           </div>
         </div>
 
@@ -67,7 +67,7 @@ const Header = () => {
             {({ open }) => (
               <div className="relative inline-block text-left">
                 <MenuButton
-                  className={`flex items-center gap-2 px-4 h-[40px] rounded-xl border transition-colors duration-200
+                  className={`flex items-center gap-2 px-4 h-[40px] rounded-xl border transition-colors duration-200 cursor-pointer
           ${open ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600"}
         `}
                 >
@@ -101,7 +101,7 @@ const Header = () => {
           </Menu>
           <button
             href="/cart"
-            className="flex items-center gap-2 px-4 h-[40px] rounded-xl border border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors duration-200"
+            className="flex items-center gap-2 px-4 h-[40px] rounded-xl border border-gray-300 text-gray-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors duration-200 cursor-pointer"
           >
             <FiShoppingCart className="text-lg" />
             <p>Sepetim</p>
